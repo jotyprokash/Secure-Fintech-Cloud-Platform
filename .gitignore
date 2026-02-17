@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+.turbo/
+*.log
+.env
+.env.local
+.DS_Store
+coverage/
+*.tsbuildinfo
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.cache/
