@@ -18,7 +18,7 @@
 
 ### User Portal - P2P Transfers & Wallet Management
 
-![User Portal Demo](/home/jatri/.gemini/antigravity/brain/8567619e-9eac-47d1-a732-789e9e776118/user_portal_demo_1771325579411.webp)
+![User Portal Demo](./assets/demos/user-portal.webp)
 
 **Features Demonstrated:**
 - ✅ User registration and authentication
@@ -29,7 +29,7 @@
 
 ### Merchant Portal - Invoice Management
 
-![Merchant Portal Demo](/home/jatri/.gemini/antigravity/brain/8567619e-9eac-47d1-a732-789e9e776118/merchant_portal_demo_1771325952175.webp)
+![Merchant Portal Demo](./assets/demos/merchant-portal.webp)
 
 **Features Demonstrated:**
 - ✅ Merchant onboarding with business name
@@ -108,7 +108,7 @@ NovaPay consists of three main components:
 ## Step 1: Start Infrastructure
 
 ```bash
-cd /home/jatri/.gemini/antigravity/scratch/novapay
+# Navigate to the project directory
 docker compose up -d
 ```
 
