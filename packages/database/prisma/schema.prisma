@@ -1,0 +1,204 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
+
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  INCOME
+  EXPENSE
+  EQUITY
+}
+
+enum LedgerEntryType {
+  TRANSFER
+  DEPOSIT
+  FEE
+}
+
+enum LedgerPostingDirection {
+  DEBIT
+  CREDIT
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum InvoiceStatus {
+  PAID
+  UNPAID
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?   @map("password_hash")
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true) @map("is_active")
+  preferences   Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  kycProfile    KycProfile?
+  authIdentities AuthIdentity[]
+  wallets       Wallet[]
+  merchants     Merchant[]
+
+  @@map("users")
+}
+
+model KycProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique @map("user_id")
+  status      KycStatus @default(PENDING)
+  documentUrl String?   @map("document_url")
+  details     Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("kyc_profiles")
+}
+
+model AuthIdentity {
+  id          String       @id @default(uuid())
+  userId      String       @map("user_id")
+  provider    AuthProvider
+  providerId  String       @map("provider_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerId])
+  @@map("auth_identities")
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id") // Nullable for system wallets if needed, but usually system wallets have special handling
+  currency  String
+  isFrozen  Boolean  @default(false) @map("is_frozen")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id])
+  accounts  LedgerAccount[]
+  
+  transfersFrom Transfer[] @relation("FromWallet")
+  transfersTo   Transfer[] @relation("ToWallet")
+  merchant      Merchant?
+
+  @@map("wallets")
+}
+
+model LedgerAccount {
+  id        String            @id @default(uuid())
+  walletId  String?           @map("wallet_id")
+  type      LedgerAccountType
+  currency  String
+  name      String
+  balance   BigInt            @default(0) // Derived/Cached balance
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  wallet    Wallet?           @relation(fields: [walletId], references: [id])
+  postings  LedgerPosting[]
+
+  @@map("ledger_accounts")
+}
+
+model LedgerEntry {
+  id          String          @id @default(uuid())
+  type        LedgerEntryType
+  description String
+  postedAt    DateTime        @default(now()) @map("posted_at")
+  metadata    Json?
+  
+  postings    LedgerPosting[]
+  transfer    Transfer?
+
+  @@map("ledger_entries")
+}
+
+model LedgerPosting {
+  id        String                 @id @default(uuid())
+  entryId   String                 @map("entry_id")
+  accountId String                 @map("account_id")
+  amount    BigInt
+  direction LedgerPostingDirection
+
+  entry     LedgerEntry          @relation(fields: [entryId], references: [id])
+  account   LedgerAccount        @relation(fields: [accountId], references: [id])
+
+  @@map("ledger_postings")
+}
+
+model Transfer {
+  id             String         @id @default(uuid())
+  fromWalletId   String         @map("from_wallet_id")
+  toWalletId     String         @map("to_wallet_id")
+  amount         BigInt
+  currency       String
+  status         TransferStatus @default(PENDING)
+  ledgerEntryId  String?        @unique @map("ledger_entry_id")
+  idempotencyKey String         @unique @map("idempotency_key")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  fromWallet     Wallet         @relation("FromWallet", fields: [fromWalletId], references: [id])
+  toWallet       Wallet         @relation("ToWallet", fields: [toWalletId], references: [id])
+  ledgerEntry    LedgerEntry?   @relation(fields: [ledgerEntryId], references: [id])
+
+  @@map("transfers")
+}
+
+model Merchant {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  businessName String   @map("business_name")
+  walletId     String   @unique @map("wallet_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User     @relation(fields: [userId], references: [id])
+  wallet       Wallet   @relation(fields: [walletId], references: [id])
+  invoices     Invoice[]
+
+  @@map("merchants")
+}
+
+model Invoice {
+  id         String        @id @default(uuid())
+  merchantId String        @map("merchant_id")
+  amount     BigInt
+  currency   String
+  status     InvoiceStatus @default(UNPAID)
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  merchant   Merchant      @relation(fields: [merchantId], references: [id])
+
+  @@map("invoices")
+}
