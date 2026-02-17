@@ -137,9 +137,9 @@ We completed the **Merchant Portal** implementation, enabling businesses to acce
 - Links merchant to user account
 
 **Files Created:**
-- [merchants.service.ts](file:///home/jatri/.gemini/antigravity/scratch/novapay/services/api/src/merchants/merchants.service.ts)
-- [merchants.controller.ts](file:///home/jatri/.gemini/antigravity/scratch/novapay/services/api/src/merchants/merchants.controller.ts)
-- [merchants.module.ts](file:///home/jatri/.gemini/antigravity/scratch/novapay/services/api/src/merchants/merchants.module.ts)
+- `merchants.service.ts`
+- `merchants.controller.ts`
+- `merchants.module.ts`
 
 #### Frontend: Merchant Portal (`apps/web-merchant`)
 
@@ -156,9 +156,9 @@ We completed the **Merchant Portal** implementation, enabling businesses to acce
 - Cookie-based JWT authentication
 
 **Pages Created:**
-- [login/page.tsx](file:///home/jatri/.gemini/antigravity/scratch/novapay/apps/web-merchant/src/app/login/page.tsx)
-- [register/page.tsx](file:///home/jatri/.gemini/antigravity/scratch/novapay/apps/web-merchant/src/app/register/page.tsx)
-- [dashboard/page.tsx](file:///home/jatri/.gemini/antigravity/scratch/novapay/apps/web-merchant/src/app/dashboard/page.tsx)
+- `login/page.tsx`
+- `register/page.tsx`
+- `dashboard/page.tsx`
 
 #### Running the Application
 
@@ -179,14 +179,14 @@ cd apps/web-user && npm run dev -- -p 3003
 cd apps/web-merchant && npm run dev -- -p 3004
 ```
 
-See [RUN_INSTRUCTIONS.md](file:///home/jatri/.gemini/antigravity/brain/8567619e-9eac-47d1-a732-789e9e776118/RUN_INSTRUCTIONS.md) for complete setup and testing instructions.
+See `RUN_INSTRUCTIONS.md` for complete setup and testing instructions.
 
 #### Screenshots
 
 ````carousel
-![User Portal Login Page](/home/jatri/.gemini/antigravity/brain/8567619e-9eac-47d1-a732-789e9e776118/user_login_page_1771324947192.png)
+![User Portal Login Page](./assets/screenshots/user-login.png)
 <!-- slide -->
-![Merchant Portal Login Page](/home/jatri/.gemini/antigravity/brain/8567619e-9eac-47d1-a732-789e9e776118/merchant_login_page_1771324913788.png)
+![Merchant Portal Login Page](./assets/screenshots/merchant-login.png)
 ````
 
 Both portals feature:
