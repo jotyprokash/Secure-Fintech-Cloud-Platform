@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # ─── Infrastructure ────────────────────────────────────
   postgres:
     image: postgres:15-alpine
     container_name: novapay-postgres
@@ -13,10 +12,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U novapay"]
+      test: [ "CMD-SHELL", "pg_isready -U novapay" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - novapay-network
 
   redis:
     image: redis:alpine
@@ -24,10 +26,13 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - novapay-network
 
   minio:
     image: minio/minio
@@ -42,19 +47,105 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
       retries: 3
+    restart: unless-stopped
+    networks:
+      - novapay-network
 
-  # Mailhog for email testing
   mailhog:
     image: mailhog/mailhog
     container_name: novapay-mailhog
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # HTTP UI
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+    networks:
+      - novapay-network
+
+  # ─── Application Services ──────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    container_name: novapay-api
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://novapay:password@postgres:5432/novapay?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: "super-secret-dev-key"
+      PORT: 3001
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - novapay-network
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/worker/Dockerfile
+    container_name: novapay-worker
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: "postgresql://novapay:password@postgres:5432/novapay?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_PORT: 3002
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - novapay-network
+
+  web-user:
+    build:
+      context: .
+      dockerfile: apps/web-user/Dockerfile
+    container_name: novapay-web-user
+    ports:
+      - "3000:3000"
+    environment:
+      INTERNAL_API_URL: "http://api:3001"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - novapay-network
+
+  web-merchant:
+    build:
+      context: .
+      dockerfile: apps/web-merchant/Dockerfile
+    container_name: novapay-web-merchant
+    ports:
+      - "3003:3000"
+    environment:
+      INTERNAL_API_URL: "http://api:3001"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - novapay-network
 
 volumes:
   postgres_data:
   minio_data:
+
+
+networks:
+  novapay-network:
+    driver: bridge
