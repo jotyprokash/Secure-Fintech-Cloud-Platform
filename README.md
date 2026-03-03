@@ -1,278 +1,307 @@
-# NovaPay - Production-Grade Fintech Platform
-
-<div align="center">
-
-![NovaPay Banner](https://img.shields.io/badge/NovaPay-Fintech%20Platform-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-
-**A modern, secure fintech platform with double-entry ledger accounting, P2P transfers, and merchant invoicing.**
-
-[Features](#features) • [Quick Start](#quick-start) • [Architecture](#architecture) • [Demo](#demo)
-
-</div>
+<p align="center">
+  <h1 align="center">💸 NovaPay</h1>
+  <p align="center">
+    <strong>A cloud-native Fintech platform for digital wallets, P2P transfers, and merchant payments</strong>
+  </p>
+  <p align="center">
+    Built with NestJS · Next.js · Prisma · PostgreSQL · Docker
+  </p>
+</p>
 
 ---
 
-## 🎥 Live Demo
+## 📋 Overview
 
-### User Portal - P2P Transfers & Wallet Management
+**NovaPay** is a full-stack digital wallet platform that demonstrates core fintech patterns:
 
-![User Portal Demo](./assets/demos/user-portal.webp)
-
-**Features Demonstrated:**
-- ✅ User registration and authentication
-- ✅ Wallet funding (simulated deposits)
-- ✅ P2P money transfers
-- ✅ Real-time transaction history
-- ✅ Glassmorphism UI with smooth animations
-
-### Merchant Portal - Invoice Management
-
-![Merchant Portal Demo](./assets/demos/merchant-portal.webp)
-
-**Features Demonstrated:**
-- ✅ Merchant onboarding with business name
-- ✅ Invoice creation and tracking
-- ✅ Business dashboard with stats
-- ✅ Modern emerald-themed UI
+- **User Wallets** — Register, deposit funds, check balance
+- **P2P Transfers** — Send money to other users with idempotency protection
+- **Merchant System** — Create merchant profiles, generate invoices
+- **Double-Entry Ledger** — Every transaction is recorded with balanced debit/credit postings
+- **Multi-Portal** — Separate User and Merchant web dashboards
 
 ---
 
-## ✨ Features
+## 🏗️ Tech Stack
 
-### Core Banking Features
-- 🏦 **Double-Entry Ledger** - ACID-compliant accounting system
-- 💸 **P2P Transfers** - Instant money transfers between users
-- 💰 **Wallet Management** - Multi-currency wallet support
-- 🔐 **Secure Authentication** - JWT-based auth with bcrypt password hashing
-- 🔄 **Idempotency** - Prevent duplicate transactions
-- 📊 **Transaction History** - Complete audit trail
-
-### Merchant Features
-- 🏪 **Merchant Onboarding** - Quick business registration
-- 📄 **Invoice Generation** - Create and track payment invoices
-- 📈 **Business Analytics** - Revenue and growth metrics
-- 💳 **Payment Processing** - Accept payments from users
-
-### Technical Excellence
-- ⚡ **High Performance** - Built with NestJS and Next.js
-- 🎨 **Modern UI** - Glassmorphism design with Tailwind CSS
-- 🔒 **Security First** - Input validation, SQL injection prevention
-- 📦 **Monorepo** - Turborepo for efficient development
-- 🐳 **Docker Ready** - Containerized infrastructure
+| Layer        | Technology                          |
+|-------------|--------------------------------------|
+| **API**      | NestJS (Node.js)                    |
+| **Database** | PostgreSQL 15 + Prisma ORM          |
+| **Frontend** | Next.js 16 (React 19, TailwindCSS)  |
+| **Auth**     | JWT + Passport.js                    |
+| **Queue**    | Redis (for future worker tasks)      |
+| **Storage**  | MinIO (S3-compatible, for KYC docs)  |
+| **Email**    | MailHog (dev SMTP testing)           |
+| **DevOps**   | Docker, Docker Compose               |
 
 ---
 
-# NovaPay - Running Instructions
+## 🧭 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Docker Network                          │
+│                                                              │
+│  ┌──────────┐   ┌──────────┐   ┌───────────┐               │
+│  │ web-user │   │web-merch │   │    API    │               │
+│  │ :3000    │──▶│ :3003    │──▶│  :3001   │               │
+│  │ Next.js  │   │ Next.js  │   │  NestJS  │               │
+│  └──────────┘   └──────────┘   └────┬──────┘               │
+│                                      │                       │
+│               ┌──────────────────────┼──────────┐           │
+│               │                      │          │           │
+│         ┌─────▼─────┐         ┌──────▼───┐ ┌───▼────┐     │
+│         │ PostgreSQL │         │  Redis   │ │ Worker │     │
+│         │   :5432    │         │  :6379   │ │ :3002  │     │
+│         └────────────┘         └──────────┘ └────────┘     │
+│                                                              │
+│         ┌────────────┐         ┌──────────┐                 │
+│         │   MinIO     │         │ MailHog  │                 │
+│         │ :9000/:9001 │         │ :8025    │                 │
+│         └────────────┘         └──────────┘                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+novapay/
+├── apps/
+│   ├── web-user/          # User-facing wallet dashboard (Next.js)
+│   └── web-merchant/      # Merchant payment portal (Next.js)
+├── services/
+│   ├── api/               # Core REST API (NestJS)
+│   │   └── src/
+│   │       ├── auth/      # JWT authentication
+│   │       ├── users/     # User management
+│   │       ├── wallets/   # Wallet queries
+│   │       ├── transfers/ # Deposits & P2P transfers
+│   │       ├── ledger/    # Double-entry ledger engine
+│   │       ├── merchants/ # Merchant profiles & invoices
+│   │       ├── system/    # System account bootstrapping
+│   │       └── prisma/    # Database connection
+│   └── worker/            # Background job processor (NestJS)
+├── packages/
+│   ├── database/          # Prisma schema & client
+│   ├── common/            # Shared DTOs & utilities
+│   ├── ui/                # Shared React components
+│   ├── eslint-config/     # Shared ESLint config
+│   └── typescript-config/ # Shared TypeScript config
+├── docker-compose.yml     # Full orchestration
+├── .env.example           # Environment template
+└── turbo.json             # Turborepo configuration
+```
+
+---
+
+## ⚙️ Prerequisites
+
+- **Docker** (v20.10+) — [Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose** (v2+) — Included with Docker Desktop
+
+That's it. No Node.js, npm, or PostgreSQL installation required on your machine.
 
 ---
 
 ## 🚀 Quick Start
 
+### 1. Clone the repository
+
 ```bash
-# 1. Start infrastructure
-docker compose up -d
-
-# 2. Deploy database schema
-npx prisma db push --schema=packages/database/prisma/schema.prisma
-
-# 3. Start backend API
-npm run start:dev -w services/api
-
-# 4. Start User Portal (in new terminal)
-cd apps/web-user && npm run dev -- -p 3003
-
-# 5. Start Merchant Portal (in new terminal)
-cd apps/web-merchant && npm run dev -- -p 3004
+git clone https://github.com/jotyprokash/Secure-Fintech-Cloud-Platform.git
+cd Secure-Fintech-Cloud-Platform
 ```
 
-**Access the portals:**
-- 👤 **User Portal**: http://localhost:3003
-- 🏪 **Merchant Portal**: http://localhost:3004
-- 🔧 **Backend API**: http://localhost:3001
+### 2. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+> The default `.env.example` values are ready for local development. No changes needed.
+
+### 3. Build and start all services
+
+```bash
+docker compose up -d --build
+```
+
+This will:
+- Pull PostgreSQL, Redis, MinIO, and MailHog images
+- Build the API, Worker, and both frontend apps
+- Run Prisma migrations automatically
+- Start everything on a shared network
+
+### 4. Verify containers are running
+
+```bash
+docker compose ps
+```
+
+You should see all 7 containers (`novapay-api`, `novapay-worker`, `novapay-web-user`, `novapay-web-merchant`, `novapay-postgres`, `novapay-redis`, `novapay-minio`) with status `Up`.
+
+### 5. Open in browser
+
+| Service           | URL                          |
+|-------------------|------------------------------|
+| **User Portal**   | http://localhost:3000         |
+| **Merchant Portal** | http://localhost:3003       |
+| **API**           | http://localhost:3001         |
+| **MinIO Console** | http://localhost:9001         |
+| **MailHog UI**    | http://localhost:8025         |
 
 ---
 
-## Overview
-NovaPay consists of three main components:
-1. **Backend API** (NestJS) - Port 3001
-2. **User Portal** (Next.js) - Port 3003
-3. **Merchant Portal** (Next.js) - Port 3004
+## 🔧 Environment Variables
 
-## Prerequisites
-- Node.js 18+ and npm
-- Docker and Docker Compose
-- PostgreSQL (via Docker)
+| Variable        | Description                | Default                     |
+|----------------|----------------------------|-----------------------------|
+| `DATABASE_URL`  | PostgreSQL connection URL  | `postgresql://novapay:password@localhost:5432/novapay` |
+| `REDIS_HOST`    | Redis hostname             | `localhost`                 |
+| `REDIS_PORT`    | Redis port                 | `6379`                      |
+| `JWT_SECRET`    | JWT signing secret         | `super-secret-dev-key`      |
+| `PORT`          | API server port            | `3001`                      |
+| `WORKER_PORT`   | Worker server port         | `3002`                      |
 
-## Step 1: Start Infrastructure
+> ⚠️ In Docker Compose, these are overridden with container-aware values (e.g., `postgres` instead of `localhost`).
 
+---
+
+## 📦 Docker Commands
+
+### Build
 ```bash
-# Navigate to the project directory
+docker compose build
+```
+
+### Start (detached)
+```bash
 docker compose up -d
 ```
 
-This starts:
-- PostgreSQL (port 5432)
-- Redis (port 6379)
-- MinIO (port 9000)
-
-## Step 2: Deploy Database Schema
-
+### Stop
 ```bash
-npx prisma db push --schema=packages/database/prisma/schema.prisma
-```
-
-## Step 3: Start Backend API
-
-```bash
-npm run start:dev -w services/api
-```
-
-The API will be available at: **http://localhost:3001**
-
-**Key Endpoints:**
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login
-- `GET /auth/profile` - Get user profile
-- `GET /wallets` - Get user wallets
-- `POST /transfers` - P2P transfer
-- `POST /transfers/deposit` - Deposit funds
-- `GET /transfers` - Get transfer history
-- `POST /merchants` - Create merchant profile
-- `GET /merchants/my` - Get merchant profile
-- `POST /merchants/invoices` - Create invoice
-
-## Step 4: Start User Portal
-
-```bash
-cd apps/web-user
-npm run dev -- -p 3003
-```
-
-The User Portal will be available at: **http://localhost:3003**
-
-**Features:**
-- User registration and login
-- View wallet balance
-- Send money (P2P transfers)
-- Add money (simulated deposits)
-- View transaction history
-
-## Step 5: Start Merchant Portal
-
-```bash
-cd apps/web-merchant
-npm run dev -- -p 3004
-```
-
-The Merchant Portal will be available at: **http://localhost:3004**
-
-**Features:**
-- Merchant registration with business name
-- Create payment invoices
-- View invoice history
-- Business dashboard with stats
-
-## Testing the Application
-
-### User Portal Flow
-
-1. **Register a User**
-   - Go to http://localhost:3003/register
-   - Email: `alice@example.com`
-   - Password: `password123`
-   - Click "Create Account"
-
-2. **Add Funds**
-   - Click "Add Money" button
-   - This deposits $100.00 USD
-
-3. **Send Money**
-   - Get another user's Wallet ID (register a second user or use existing)
-   - Enter recipient Wallet ID
-   - Enter amount in cents (e.g., 5000 for $50.00)
-   - Click "Send Payment"
-
-4. **View History**
-   - Scroll down to "Recent Activity"
-   - See all sent and received transactions
-
-### Merchant Portal Flow
-
-1. **Register a Merchant**
-   - Go to http://localhost:3004/register
-   - Business Name: `Tech Store`
-   - Email: `merchant@example.com`
-   - Password: `password123`
-   - Click "Create Merchant Account"
-
-2. **Create Invoice**
-   - On the dashboard, enter amount in cents (e.g., 5000 for $50.00)
-   - Click "Create Invoice"
-   - Invoice appears in "Recent Invoices"
-
-3. **View Stats**
-   - Dashboard shows:
-     - Total Revenue
-     - Invoice count
-     - Growth metrics
-
-## Port Summary
-
-| Service | Port | URL |
-|---------|------|-----|
-| Backend API | 3001 | http://localhost:3001 |
-| User Portal | 3003 | http://localhost:3003 |
-| Merchant Portal | 3004 | http://localhost:3004 |
-| PostgreSQL | 5432 | localhost:5432 |
-| Redis | 6379 | localhost:6379 |
-| MinIO | 9000 | http://localhost:9000 |
-
-## Troubleshooting
-
-### Port Already in Use
-If you see `EADDRINUSE` error:
-```bash
-# Find process using the port
-lsof -i :3001  # or :3003, :3004
-
-# Kill the process
-kill -9 <PID>
-```
-
-### Database Connection Issues
-```bash
-# Restart Docker containers
 docker compose down
-docker compose up -d
-
-# Re-deploy schema
-npx prisma db push --schema=packages/database/prisma/schema.prisma
 ```
 
-### Frontend Build Errors
+### Rebuild after code changes
 ```bash
-# Clear Next.js cache
-rm -rf apps/web-user/.next
-rm -rf apps/web-merchant/.next
-
-# Reinstall dependencies
-npm install
+docker compose up -d --build
 ```
 
-## Architecture Notes
+### View logs (all services)
+```bash
+docker compose logs -f
+```
 
-- **Double-Entry Ledger**: All financial transactions are recorded using double-entry bookkeeping
-- **Idempotency**: Transfers use idempotency keys to prevent duplicate transactions
-- **JWT Authentication**: Both portals use JWT tokens stored in cookies
-- **API Proxy**: Next.js rewrites `/api/*` requests to the backend API
-- **Glassmorphism UI**: Modern dark theme with glass effects and gradients
+### View logs (specific service)
+```bash
+docker compose logs -f api
+docker compose logs -f web-user
+```
 
-## Next Steps
+### Restart a single service
+```bash
+docker compose restart api
+```
 
-- Implement payment processing for invoices
-- Add API key generation for merchants
-- Implement admin portal for operations
-- Add KYC verification flow
-- Deploy to production environment
+### Full cleanup (including volumes)
+```bash
+docker compose down -v
+```
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint              | Auth     | Description                |
+|--------|-----------------------|----------|----------------------------|
+| GET    | `/`                   | No       | Health check               |
+| POST   | `/auth/register`      | No       | Register new user          |
+| POST   | `/auth/login`         | No       | Login (returns JWT)        |
+| GET    | `/auth/profile`       | JWT      | Get current user profile   |
+| GET    | `/wallets`            | JWT      | Get user wallets + balance |
+| POST   | `/transfers/deposit`  | JWT      | Deposit funds to wallet    |
+| POST   | `/transfers`          | JWT      | P2P transfer               |
+| GET    | `/transfers`          | JWT      | Transfer history           |
+| POST   | `/merchants`          | JWT      | Create merchant profile    |
+| GET    | `/merchants/my`       | JWT      | Get your merchant profile  |
+| POST   | `/merchants/invoices` | JWT      | Create an invoice          |
+
+---
+
+## 🧪 Test the API
+
+```bash
+# Register a user
+curl -X POST http://localhost:3001/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+
+# Login
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+
+# Use the returned token for authenticated requests
+curl http://localhost:3001/wallets \
+  -H "Authorization: Bearer <your-token>"
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+### Container won't start
+```bash
+# Check logs for the failing container
+docker compose logs api
+
+# Restart from scratch
+docker compose down -v
+docker compose up -d --build
+```
+
+### Database connection errors
+```bash
+# Verify PostgreSQL is healthy
+docker compose ps postgres
+
+# Check if migrations ran
+docker compose logs api | grep -i prisma
+```
+
+### Port already in use
+```bash
+# Find what's using the port
+lsof -i :3001
+
+# Kill the process or change the port in docker-compose.yml
+```
+
+### Frontend shows API errors
+- Ensure the API container is running: `docker compose ps api`
+- Check API health: `curl http://localhost:3001/`
+- The frontend proxies `/api/*` to the API service inside Docker network
+
+### Rebuild everything fresh
+```bash
+docker compose down -v
+docker system prune -af
+docker compose up -d --build
+```
+
+---
+
+## 📜 License
+
+This project is for educational and portfolio purposes.
+
+---
+
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/jotyprokash">Joty Prokash</a>
+</p>
