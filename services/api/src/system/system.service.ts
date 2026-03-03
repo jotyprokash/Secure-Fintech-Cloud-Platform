@@ -22,10 +22,7 @@ export class SystemService implements OnModuleInit {
                     name: 'system:bank:usd',
                     type: LedgerAccountType.ASSET,
                     currency: 'USD',
-                    balance: BigInt(1000000000), // Initial Seed Capital (10M USD in cents) just to not be negative immediately? 
-                    // Actually, Assets starts at 0.
-                    // But if we simulate user deposits, we Debit Bank (Asset increases).
-                    // So it's fine.
+                    balance: BigInt(0), // Asset accounts start at 0, increase via debit postings on deposits
                 },
             });
         }
