@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
+const apiUrl = process.env.INTERNAL_API_URL || 'http://localhost:3001';
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
+  turbopack: {
+    root: '../../',
+  },
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3001/:path*',
+        destination: `${apiUrl}/:path*`,
       },
     ];
   },
