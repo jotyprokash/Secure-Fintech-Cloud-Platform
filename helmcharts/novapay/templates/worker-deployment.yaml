@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novapay-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novapay-worker
+  template:
+    metadata:
+      labels:
+        app: novapay-worker
+    spec:
+      containers:
+        - name: worker
+          image: {{ .Values.worker.image }}
+          imagePullPolicy: {{ .Values.worker.pullPolicy }}
+          env:
+            - name: DATABASE_URL
+              value: postgresql://novapay:password@postgres:5432/novapay
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: NODE_ENV
+              value: production
