@@ -10,7 +10,7 @@ Current deployment scope:
 
 This is a Proof-of-Concept (POC) Helm deployment designed to validate Kubernetes orchestration before expanding to the full platform stack.
 
----
+
 
 # Architecture
 
@@ -45,7 +45,7 @@ helmcharts/novapay
     └── redis-service.yaml
 ```
 
----
+
 
 # Validate Helm Chart
 
@@ -61,7 +61,7 @@ Render Kubernetes manifests locally:
 helm template novapay helmcharts/novapay
 ```
 
----
+
 
 # Deploy to Kubernetes
 
@@ -78,7 +78,7 @@ kubectl get pods
 kubectl get svc
 ```
 
----
+
 
 # Current Scope
 
@@ -96,7 +96,7 @@ Additional services planned for later expansion:
 - MinIO (object storage)
 - MailHog (SMTP testing)
 
----
+
 
 # Purpose
 
