@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novapay-web-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novapay-web-user
+  template:
+    metadata:
+      labels:
+        app: novapay-web-user
+    spec:
+      containers:
+        - name: web-user
+          image: {{ .Values.webUser.image }}
+          imagePullPolicy: {{ .Values.webUser.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.webUser.port }}
+          env:
+            - name: NODE_ENV
+              value: production
+            # If your Next.js app needs API base URL, we can add it after first run
