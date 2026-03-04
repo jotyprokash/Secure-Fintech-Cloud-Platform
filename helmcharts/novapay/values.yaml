@@ -1,6 +1,7 @@
 api:
   image: novapay-api
   port: 3001
+  pullPolicy: IfNotPresent
 
 postgres:
   image: postgres:15
