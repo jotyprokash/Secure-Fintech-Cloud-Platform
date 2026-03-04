@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: novapay-web-merchant
+spec:
+  selector:
+    app: novapay-web-merchant
+  ports:
+    - port: 3003
+      targetPort: {{ .Values.webMerchant.port }}
+      protocol: TCP
+  type: ClusterIP

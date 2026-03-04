@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novapay-web-merchant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novapay-web-merchant
+  template:
+    metadata:
+      labels:
+        app: novapay-web-merchant
+    spec:
+      containers:
+        - name: web-merchant
+          image: {{ .Values.webMerchant.image }}
+          imagePullPolicy: {{ .Values.webMerchant.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.webMerchant.port }}
