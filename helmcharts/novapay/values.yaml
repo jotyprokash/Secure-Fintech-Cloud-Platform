@@ -1,0 +1,14 @@
+api:
+  image: novapay-api
+  port: 3001
+
+postgres:
+  image: postgres:15
+  user: novapay
+  password: password
+  db: novapay
+  port: 5432
+
+redis:
+  image: redis:7
+  port: 6379
