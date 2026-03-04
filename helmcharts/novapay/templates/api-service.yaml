@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: novapay-api
+spec:
+  selector:
+    app: novapay-api
+  ports:
+    - port: {{ .Values.api.port }}
+      targetPort: {{ .Values.api.port }}
+  type: ClusterIP

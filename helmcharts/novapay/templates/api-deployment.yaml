@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novapay-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novapay-api
+  template:
+    metadata:
+      labels:
+        app: novapay-api
+    spec:
+      containers:
+        - name: api
+          image: {{ .Values.api.image }}
+          ports:
+            - containerPort: {{ .Values.api.port }}
+          env:
+            - name: DATABASE_URL
+              value: postgresql://novapay:password@postgres:5432/novapay
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: JWT_SECRET
+              value: super-secret-dev-key
