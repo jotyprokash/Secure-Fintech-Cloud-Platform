@@ -8,7 +8,7 @@
   </p>
 </p>
 
----
+
 
 ## 📋 Overview
 
@@ -20,7 +20,7 @@
 - **Double-Entry Ledger** — Every transaction is recorded with balanced debit/credit postings
 - **Multi-Portal** — Separate User and Merchant web dashboards
 
----
+
 
 ## 🏗️ Tech Stack
 
@@ -35,7 +35,7 @@
 | **Email**    | MailHog (dev SMTP testing)           |
 | **DevOps**   | Docker, Docker Compose               |
 
----
+
 
 ## 🧭 Architecture
 
@@ -63,7 +63,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
----
+
 
 ## 📁 Project Structure
 
@@ -95,7 +95,7 @@ novapay/
 └── turbo.json             # Turborepo configuration
 ```
 
----
+
 
 ## ⚙️ Prerequisites
 
@@ -153,7 +153,7 @@ You should see all 7 containers (`novapay-api`, `novapay-worker`, `novapay-web-u
 | **MinIO Console** | http://localhost:9001         |
 | **MailHog UI**    | http://localhost:8025         |
 
----
+
 
 ## 🔧 Environment Variables
 
@@ -168,7 +168,7 @@ You should see all 7 containers (`novapay-api`, `novapay-worker`, `novapay-web-u
 
 > ⚠️ In Docker Compose, these are overridden with container-aware values (e.g., `postgres` instead of `localhost`).
 
----
+
 
 ## 📦 Docker Commands
 
@@ -213,7 +213,7 @@ docker compose restart api
 docker compose down -v
 ```
 
----
+
 
 ## 🔌 API Endpoints
 
@@ -231,7 +231,7 @@ docker compose down -v
 | GET    | `/merchants/my`       | JWT      | Get your merchant profile  |
 | POST   | `/merchants/invoices` | JWT      | Create an invoice          |
 
----
+
 
 ## 🧪 Test the API
 
@@ -251,7 +251,7 @@ curl http://localhost:3001/wallets \
   -H "Authorization: Bearer <your-token>"
 ```
 
----
+
 
 ## 🛠️ Troubleshooting
 
@@ -294,14 +294,8 @@ docker system prune -af
 docker compose up -d --build
 ```
 
----
 
-## 📜 License
-
-This project is for educational and portfolio purposes.
-
----
 
 <p align="center">
-  Built with ❤️ by <a href="https://github.com/jotyprokash">Joty Prokash</a>
+  Built with ❤️ by <a href="https://github.com/jotyprokash">Joty</a>
 </p>
